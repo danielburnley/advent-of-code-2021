@@ -75,11 +75,8 @@ def guess_digits(digits, all_numbers)
     end
 
     if digits[4]
-      case (digits[4] & digit).length
-      when 4
+      if (digits[4] & digit).length == 4
         digits[9] = digit
-      when 3
-        digits[6] = digit
       end
     end
 
@@ -87,12 +84,6 @@ def guess_digits(digits, all_numbers)
       nine = (digits[3] + digits[4]).uniq.sort
       if (nine & digit).length == 6
         digits[9] = digit
-      end
-    end
-
-    if digits[8]
-      if (digits[8] & digit).length == 6
-        digits[0] = digit
       end
     end
   end
@@ -135,12 +126,19 @@ def guess_digits(digits, all_numbers)
     digits[k] = v.select { |a| a.is_a?(String) }
   end
 
+  remaining = digits.select { |_,v| v == nil }
+  if(remaining.length == 1)
+    all_numbers = all_numbers.map { |n| n.select { |a| a.is_a?(String) } }.uniq
+    mapped = digits.values
+    digits[remaining.keys[0]] = [all_numbers - mapped][0][0]
+  end
+
   digits
 end
 
 count = 0
 outputs = input.map do |signals, output|
-  digits = (1..9).reduce({}) { |acc, i| acc[i] = nil; acc }
+  digits = (0..9).reduce({}) { |acc, i| acc[i] = nil; acc }
   all_numbers = signals + output
 
   last = {}
@@ -149,12 +147,11 @@ outputs = input.map do |signals, output|
     digits = guess_digits(digits, all_numbers)
   end
 
-  p digits.select { |_,d| d == nil }
 
   output = output.map { |o| o.select { |s| s.is_a?(String) } }
-  output = output.map { |o| digits.key(o) }.join("")
-  output.to_i
+  res = output.map { |o| digits.key(o) }.join("")
+
+  res.to_i
 end
 
-p outputs
-binding.pry
+p outputs.sum
