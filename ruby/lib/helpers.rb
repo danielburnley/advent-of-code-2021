@@ -1,5 +1,52 @@
 require_relative 'solution_fetcher'
 
+class CoordinateGrid
+  def initialize(input)
+    @grid = {}
+    input.each_with_index do |line, y|
+      line.each_with_index do |val, x|
+        if !@grid[y]
+          @grid[y] = {}
+        end
+
+        @grid[y][x] = val
+      end
+    end
+  end
+
+  def get(x,y)
+    if grid[y]
+      return grid[y][x]
+    end
+    nil
+  end
+
+  def adjacent_values(x, y)
+    [get(x,y-1), get(x,y+1), get(x-1,y), get(x+1,y)].compact
+  end
+
+  def adjacent_positions(x, y)
+    positions = [[x,y-1],[x,y+1],[x-1,y],[x+1,y]]
+    positions.select { |p| get(p[0], p[1]) }
+  end
+
+  def all_positions
+    res = []
+
+    grid.each do |y, rows|
+      rows.each do |x, _|
+        res << [x,y]
+      end
+    end
+
+    res
+  end
+
+  private
+
+  attr_reader :grid
+end
+
 def get_example_input_for_day(day:)
   File.open("#{__dir__}/inputs/day_#{day}_example.txt", 'r') { |f| f.readlines(chomp: true) }
 end
